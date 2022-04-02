@@ -9,7 +9,7 @@ import UIKit
 
 class MainVC: UIViewController {
     //MARK: @IBOutlet
-    @IBOutlet weak var txtSearch: UITextField!
+    @IBOutlet weak var txtSearch: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
     
     //MARK: Variables
@@ -28,7 +28,7 @@ class MainVC: UIViewController {
         collectionView.register(UINib(nibName: "MovieCVC", bundle: nil), forCellWithReuseIdentifier: "MovieCVC")
         serverRequest.delegate = self
         self.txtSearch.delegate = self
-        txtSearch.addTarget(self, action: #selector(self.textFieldDidChange(textField:)), for: .editingChanged)
+//        txtSearch.addTarget(self, action: #selector(self.textFieldDidChange(textField:)), for: .editingChanged)
         
     }
 }
@@ -74,23 +74,6 @@ extension MainVC: CollectionViewMethods{
         }
     }
 }
-//MARK: UITextFieldDelegate
-extension MainVC: UITextFieldDelegate{
-    @objc
-    func textFieldDidChange(textField: UITextField){
-        if (textField.text?.count ?? 0) > 1{
-            selectedText = textField.text!
-            serverRequest.requestGETAPI(vc: self, url: "\(Apis.baseURL)=\(Apis.api_key)&query=\(textField.text!)", method: .get, type: "", loading: false)
-            
-            
-        }else if textField.text == ""{
-            moviePoster = PaginationPosters(json: JSON())
-            collectionView.reloadData()
-        }
-        
-    }
-}
-
 //MARK: serverResponse
 extension MainVC: serverResponse{
     func onSuccess(json: JSON, val: String) {
@@ -107,4 +90,19 @@ extension MainVC: serverResponse{
         }
         
     }
+}
+
+//MARK: UISearchBarDelegate
+extension MainVC: UISearchBarDelegate{
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.count > 1{
+            selectedText = searchText
+            serverRequest.requestGETAPI(vc: self, url: "\(Apis.baseURL)=\(Apis.api_key)&query=\(searchText)", method: .get, type: "", loading: false)
+            
+            
+        }else if searchText == ""{
+            moviePoster = PaginationPosters(json: JSON())
+            collectionView.reloadData()
+        }
+        }
 }
